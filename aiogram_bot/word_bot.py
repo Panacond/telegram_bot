@@ -3,7 +3,7 @@ import logging, random, time
 from aiogram import Bot, Dispatcher, executor, types
 from aiogram.dispatcher.filters import Text
 from parse_site import weather_sinoptic
-import code_data
+from token_pass import API_TOKEN
 
 class TimerHelp():
     def __init__(self):
@@ -12,9 +12,7 @@ class TimerHelp():
     def set_now_time(self):
         self.start_time = time.time()
 
-
-
-API_TOKEN = code_data.read("mydata", input("password"))
+# API_TOKEN = code_data.read("mydata", input("password"))
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
