@@ -5,7 +5,7 @@ from os import getenv
 from sys import exit
 logging.basicConfig(level=logging.INFO)
 
-bot = Bot(token="1426091599:AAH0FiP0WvsVXCJ74FKpQTUMrp87bzuZcck")
+bot = Bot(token="BOT_TOKEN")
 '''только для pycharm при задании переменных окружения'''
 # bot_token = getenv("BOT_TOKEN")
 # if not bot_token:

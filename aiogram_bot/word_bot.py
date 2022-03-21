@@ -1,3 +1,4 @@
+from email import message
 import logging, random, time
 from aiogram import Bot, Dispatcher, executor, types
 from aiogram.dispatcher.filters import Text
@@ -11,6 +12,8 @@ class TimerHelp():
     def set_now_time(self):
         self.start_time = time.time()
 
+
+
 API_TOKEN = code_data.read("mydata", input("password"))
 
 # Configure logging
@@ -20,12 +23,76 @@ logging.basicConfig(level=logging.INFO)
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher(bot)
 
+async def on_startup():
+    user_should_be_notified = -702529372
+    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    buttons = ["погода Одесса", "Game"]
+    keyboard.add(*buttons)
+    await bot.send_message(user_should_be_notified, "Бот перезапущен")
+
+def get_keyboard():
+    # Генерация клавиатуры.
+    keyboard = types.InlineKeyboardMarkup()
+    buttons = [
+        types.InlineKeyboardButton(text="racoon", callback_data="racoon"),
+        types.InlineKeyboardButton(text="dog", callback_data="dog"),
+        types.InlineKeyboardButton(text="seagull", callback_data="seagull"),
+        types.InlineKeyboardButton(text="squirrel", callback_data="squirrel"),
+        types.InlineKeyboardButton(text="cat", callback_data="cat"),
+        types.InlineKeyboardButton(text="fox", callback_data="fox")
+    ]
+    # Благодаря row_width=2, в первом ряду будет две кнопки, а оставшаяся одна
+    # уйдёт на следующую строку
+    keyboard = types.InlineKeyboardMarkup(row_width=2)
+    keyboard.add(*buttons)
+    return keyboard
+
 @dp.message_handler(commands=['start', 'help'])
 async def send_welcome(message: types.Message):
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    buttons = ["погода Одесса"]
+    buttons = ["погода Одесса", "Game"]
     keyboard.add(*buttons)
     await message.reply("Hi!\nI'm Bot!\nI'm type some statements\nYou type words: мысль, идея, thought, idea, cat", reply_markup=keyboard)
+
+@dp.message_handler(text="Game")
+async def start_game(message: types.Message):
+    await message.answer("Выберети животное", reply_markup=get_keyboard())
+
+@dp.callback_query_handler(text='racoon')
+async def start_game(call: types.CallbackQuery):
+    with open('data/racoon.jpeg', 'rb') as photo:
+        await call.message.reply_photo(photo, caption='Racoon is here', reply_markup=get_keyboard())
+    await call.answer()
+
+@dp.callback_query_handler(text='dog')
+async def start_game(call: types.CallbackQuery):
+    with open('data/dog.jpg', 'rb') as photo:
+        await call.message.reply_photo(photo, caption='Dog is here', reply_markup=get_keyboard())
+    await call.answer()
+
+@dp.callback_query_handler(text='seagull')
+async def start_game(call: types.CallbackQuery):
+    with open('data/seagull.jpg', 'rb') as photo:
+        await call.message.reply_photo(photo, caption='Seagull is here', reply_markup=get_keyboard())
+    await call.answer()
+
+@dp.callback_query_handler(text='squirrel')
+async def start_game(call: types.CallbackQuery):
+    with open('data/squirrel.jpeg', 'rb') as photo:
+        await call.message.reply_photo(photo, caption='Sqaull is here', reply_markup=get_keyboard())
+    await call.answer()
+
+@dp.callback_query_handler(text='cat')
+async def start_game(call: types.CallbackQuery):
+    with open('data/mother_in_low_cat.jpg', 'rb') as photo:
+        await call.message.reply_photo(photo, caption='Cats is here', reply_markup=get_keyboard())
+    await call.answer()
+
+@dp.callback_query_handler(text="fox")
+async def start_game(call: types.CallbackQuery):
+    with open('data/fox.jpg', 'rb') as photo:
+        await call.message.reply_photo(photo, caption='Fox is here', reply_markup=get_keyboard())
+    await call.answer()
 
 text_all_time=('мысль', 'thought')
 STATEMENTS= (
@@ -69,5 +136,6 @@ async def cats(message: types.Message):
 
 
 if __name__ == '__main__':
+    executor.start(dp, on_startup())
     executor.start_polling(dp, skip_updates=True)
     

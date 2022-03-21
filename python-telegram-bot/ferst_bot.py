@@ -1,5 +1,5 @@
 from telegram.ext import Updater
-updater = Updater(token='1426091599:AAH0FiP0WvsVXCJ74FKpQTUMrp87bzuZcck', use_context=True)
+updater = Updater(token='BOT_TOKEN', use_context=True)
 
 from telegram.ext import MessageHandler, Filters, CallbackContext
 
