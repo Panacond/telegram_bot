@@ -1,4 +1,3 @@
-from email import message
 import logging, random, time
 from aiogram import Bot, Dispatcher, executor, types
 from aiogram.dispatcher.filters import Text
