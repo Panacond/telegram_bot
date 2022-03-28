@@ -4,10 +4,10 @@ It echoes any incoming text messages.
 """
 
 import logging
-
+from token_pass import TOCKEN_TEST_BOT
 from aiogram import Bot, Dispatcher, executor, types
 
-API_TOKEN = 'BOT_TOKEN'
+API_TOKEN = TOCKEN_TEST_BOT
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -50,4 +50,7 @@ async def echo(message: types.Message):
 
 
 if __name__ == '__main__':
+    executor.start_polling(dp, skip_updates=True)
+
+def start():
     executor.start_polling(dp, skip_updates=True)

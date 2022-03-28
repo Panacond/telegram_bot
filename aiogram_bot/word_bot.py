@@ -1,8 +1,10 @@
 import logging, random, time
+import re
 from aiogram import Bot, Dispatcher, executor, types
 from aiogram.dispatcher.filters import Text
 from parse_site import weather_sinoptic
 from token_pass import API_TOKEN
+import work_data_base
 
 class TimerHelp():
     def __init__(self):
@@ -19,13 +21,17 @@ logging.basicConfig(level=logging.INFO)
 # Initialize bot and dispatcher
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher(bot)
+def down_keywords():
+    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True,row_width=2)
+    buttons = ["погода Одесса", "Game", "dictionary", "добавить в словарь"]
+
+    keyboard.add(*buttons)
+    return keyboard
 
 async def on_startup():
     user_should_be_notified = -702529372
-    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    buttons = ["погода Одесса", "Game"]
-    keyboard.add(*buttons)
-    await bot.send_message(user_should_be_notified, "Бот перезапущен")
+    down_keyword = down_keywords()
+    await bot.send_message(user_should_be_notified, "Бот перезапущен", reply_markup=down_keyword)
 
 def get_keyboard():
     # Генерация клавиатуры.
@@ -46,10 +52,12 @@ def get_keyboard():
 
 @dp.message_handler(commands=['start', 'help'])
 async def send_welcome(message: types.Message):
-    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    buttons = ["погода Одесса", "Game"]
-    keyboard.add(*buttons)
-    await message.reply("Hi!\nI'm Bot!\nI'm type some statements\nYou type words: мысль, идея, thought, idea, cat", reply_markup=keyboard)
+    down_keyboard = down_keywords()
+    await message.reply("""Hi!\nI'm Bot!\nI'm type some statements\nYou type words: мысль, идея, thought, idea, cat
+идея и idea - отвечает срауз
+мысль и thought - толькое если предыдущий запрос с этим словом был раньше получаса
+En word - переводит слово на русский
+Ру слово - переводит на английский""", reply_markup=down_keyboard)
 
 @dp.message_handler(text="Game")
 async def start_game(message: types.Message):
@@ -131,8 +139,35 @@ async def cats(message: types.Message):
     with open('data/cats.jpg', 'rb') as photo:
         await message.reply_photo(photo, caption='Cats are here 😺')
 
+@dp.message_handler(regexp='(^en ?)')
+@dp.message_handler(regexp='(^En ?)')
+@dp.message_handler(regexp='(^ру ?)')
+@dp.message_handler(regexp='(^Ру ?)')
+async def cats(message: types.Message):
+    text = message.text
+    text = text.rstrip()
+    text = work_data_base.search_word(text)
+    await message.answer(text)
+
+@dp.message_handler(Text(equals="dictionary"))
+async def with_puree(message: types.Message):
+    await message.answer(work_data_base.dictionary_list())
+
+@dp.message_handler(text="добавить в словарь")
+async def start_game(message: types.Message):
+    await message.answer("Введите словов в формате:\n word - слово",)
+
+@dp.message_handler(regexp='(.* - .*)')
+async def add_dictionary(message: types.Message):
+    text_message = work_data_base.add_to_dictionary(message.text)
+    await message.answer(text_message)
 
 if __name__ == '__main__':
     executor.start(dp, on_startup())
     executor.start_polling(dp, skip_updates=True)
+
+def start():
+    executor.start(dp, on_startup())
+    executor.start_polling(dp, skip_updates=True)
+
     

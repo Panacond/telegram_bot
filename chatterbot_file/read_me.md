@@ -6,3 +6,6 @@ https://chatterbot.readthedocs.io/en/stable/training.html
 ```bach
 pip install chatterbot
 ```
+- aiogram
+- selenium
+- bs4

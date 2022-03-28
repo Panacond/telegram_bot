@@ -20,7 +20,7 @@ async def on_startup():
 
 @dp.message_handler(commands=['bug'])
 async def send_welcome(message: types.Message):
-    await message.reply("Hi!\nI'm EchoBot!")
+    await message.reply("Hi!\nI'm ChatBot!")
 
 @dp.message_handler()
 async def echo(message: types.Message):
@@ -29,5 +29,9 @@ async def echo(message: types.Message):
     await message.answer(bot_chat.get_response(message.text))
 
 if __name__ == '__main__':
+    executor.start(dp, on_startup())
+    executor.start_polling(dp, skip_updates=True)
+
+def start():
     executor.start(dp, on_startup())
     executor.start_polling(dp, skip_updates=True)
