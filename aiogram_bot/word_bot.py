@@ -24,16 +24,16 @@ bot = Bot(token=API_TOKEN)
 dp = Dispatcher(bot)
 def down_keywords():
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True,row_width=2)
-    buttons = ["погода Одесса", "Game", "dictionary", "добавить в словарь"]
+    buttons = ["погода Одесса", "Game", "dictionary", "добавить в словарь", "thought"]
 
     keyboard.add(*buttons)
     return keyboard
 
 async def on_startup(_):
     asyncio.create_task(scheduler())
-    user_should_be_notified = -702529372
+    user_id = 545960544 #-1001686213998 # -702529372
     down_keyword = down_keywords()
-    await bot.send_message(user_should_be_notified, "Бот перезапущен", reply_markup=down_keyword)
+    await bot.send_message(user_id, "Бот перезапущен", reply_markup=down_keyword)
 
 def get_keyboard():
     # Генерация клавиатуры.
@@ -135,7 +135,12 @@ for i in text_in_period:
 async def with_puree(message: types.Message):
     today = date.today()
     data_now = today.strftime("%Y-%m-%d")
-    text =  weather_text(read_data_weather(data_now))
+    try:
+        text =  weather_text(read_data_weather(data_now))
+    except:
+        list_weather = return_weather_data("https://sinoptik.ua/погода-одесса")
+        wrire_data_weather(data_weather=data_now, list_temp=list_weather)
+        text =  weather_text(read_data_weather(data_now))
     weather_sinoptic()
     await message.answer(weather_sinoptic())
 
@@ -144,7 +149,7 @@ async def get_weather():
     today = date.today()
     data_now = today.strftime("%Y-%m-%d")
     wrire_data_weather(data_weather=data_now, list_temp=list_weather)
-    user_id = -702529372
+    user_id = 545960544 #-702529372
     text =  weather_text(read_data_weather(data_now))
     await bot.send_message(user_id, text)
     print(data_now)
