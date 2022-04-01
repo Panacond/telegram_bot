@@ -85,18 +85,46 @@ def add_to_dictionary(text):
         text = "the word is already in the dictionary"
     return text
 
+def wrire_data_weather(data_weather, list_temp):
+    name_table = "weather"
+    con = sqlite3.connect('data_base.db')
+    cur = con.cursor()
+    # Create table
+    try:
+        cur.execute(f"CREATE TABLE {name_table} (data text, temp_9 text, temp_12 text, temp_15 text, temp_18 text)")
+    except:
+        print("table create ago")
+    write_row = True
+    for row in cur.execute(f'SELECT data FROM {name_table} WHERE data ="{data_weather}"' ):
+        print("it data was written")
+        write_row = False
+    if write_row:
+        cur.execute(f"INSERT INTO {name_table} VALUES (?, ?, ?, ?, ?)", (data_weather, list_temp[0], list_temp[1], list_temp[2], list_temp[3]))
+    con.commit()
+    con.close()
+    return write_row
+
+def read_data_weather(data_weather):
+    name_table = "weather"
+    con = sqlite3.connect('data_base.db')
+    cur = con.cursor()
+    for row in cur.execute(f'SELECT * FROM {name_table} WHERE data = "{data_weather}"' ):
+        tuple_term = row
+    return [tuple_term[1], tuple_term[2], tuple_term[3], tuple_term[4] ]
+
 if __name__ == "__main__":
-    # english, russian = "word", "слово"
-    # english, russian = "animal", "зверь"
-    # return_word(word = "животное", language="RU")
-    # print(return_word("animal"))
-    # print(len(return_word("dog")))
-    text = add_to_dictionary("text - текст")
-    print(text)
-    text = add_to_dictionary("text - текст")
-    print(text)
-    print(dictionary_list())
-    # print(search_word("En word"))
-    # print(search_word("En animal"))
-    # print(search_word("ру животное"))
-    # print(search_word("en dog"))
+    english, russian = "word", "слово"
+    assert english == return_word(word = russian, language="ру")
+    assert russian == return_word(english)
+    english, russian = "animal", "зверь"
+    assert english == return_word(word = russian, language="ру")
+    assert "животное, зверь" == return_word(english)
+    assert "the word is already in the dictionary" == add_to_dictionary("text - текст")
+    assert "word - слово" in dictionary_list()
+    assert "слово" == search_word("En word")
+    assert "животное, зверь" == search_word("En animal")
+    assert "animal" == search_word("ру животное")
+    assert "собака" == search_word("en dog")
+
+    assert False == wrire_data_weather("2022-03-29", ['+4°', '+7°', '+6°', '+10°'])
+    assert ['+4°', '+7°', '+6°', '+10°'] == read_data_weather("2022-03-29")

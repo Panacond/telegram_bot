@@ -1,10 +1,13 @@
 import logging, random, time
-import re
 from aiogram import Bot, Dispatcher, executor, types
 from aiogram.dispatcher.filters import Text
-from parse_site import weather_sinoptic
+from parse_site import weather_sinoptic, return_weather_data, weather_text
 from token_pass import API_TOKEN
+from work_data_base import read_data_weather, wrire_data_weather
 import work_data_base
+import aioschedule
+import asyncio
+from datetime import date
 
 class TimerHelp():
     def __init__(self):
@@ -12,8 +15,6 @@ class TimerHelp():
     
     def set_now_time(self):
         self.start_time = time.time()
-
-# API_TOKEN = code_data.read("mydata", input("password"))
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -28,7 +29,8 @@ def down_keywords():
     keyboard.add(*buttons)
     return keyboard
 
-async def on_startup():
+async def on_startup(_):
+    asyncio.create_task(scheduler())
     user_should_be_notified = -702529372
     down_keyword = down_keywords()
     await bot.send_message(user_should_be_notified, "Бот перезапущен", reply_markup=down_keyword)
@@ -131,8 +133,28 @@ for i in text_in_period:
 
 @dp.message_handler(Text(equals="погода Одесса"))
 async def with_puree(message: types.Message):
+    today = date.today()
+    data_now = today.strftime("%Y-%m-%d")
+    text =  weather_text(read_data_weather(data_now))
+    weather_sinoptic()
     await message.answer(weather_sinoptic())
 
+async def get_weather():
+    list_weather = return_weather_data("https://sinoptik.ua/погода-одесса")
+    today = date.today()
+    data_now = today.strftime("%Y-%m-%d")
+    wrire_data_weather(data_weather=data_now, list_temp=list_weather)
+    user_id = -702529372
+    text =  weather_text(read_data_weather(data_now))
+    await bot.send_message(user_id, text)
+    print(data_now)
+
+async def scheduler():
+    aioschedule.every().day.at("0:00").do(get_weather)
+    # aioschedule.every(1).minutes.do(get_weather)
+    while True:
+        await aioschedule.run_pending()
+        await asyncio.sleep(1)
 
 @dp.message_handler(regexp='(^cat[s]?)')
 async def cats(message: types.Message):
@@ -163,11 +185,9 @@ async def add_dictionary(message: types.Message):
     await message.answer(text_message)
 
 if __name__ == '__main__':
-    executor.start(dp, on_startup())
-    executor.start_polling(dp, skip_updates=True)
+    # executor.start(dp, on_startup())
+    # executor.start_polling(dp, skip_updates=True)
+    executor.start_polling(dp, skip_updates=False, on_startup=on_startup)
 
-def start():
-    executor.start(dp, on_startup())
-    executor.start_polling(dp, skip_updates=True)
 
     

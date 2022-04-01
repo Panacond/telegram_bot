@@ -1,8 +1,3 @@
-"""
-This is a echo bot.
-It echoes any incoming text messages.
-"""
-
 import logging
 from token_pass import TOCKEN_TEST_BOT
 from aiogram import Bot, Dispatcher, executor, types
@@ -41,12 +36,27 @@ async def cats(message: types.Message):
         await message.reply_photo(photo, caption='Cats are here 😺')
 
 
-@dp.message_handler()
-async def echo(message: types.Message):
-    # old style:
-    await bot.send_message(message.chat.id, message.text)
+from aiogram.types import ContentType
 
-    # await message.answer(message.text)
+# @dp.message_handler(content_types=ContentType.ANY)
+@dp.message_handler(content_types=ContentType.LEFT_CHAT_MEMBER)
+async def echo(message: types.Message):
+    chat_del = message.chat.title
+    text = "Delete chat:" + chat_del
+    print(text)
+    await bot.send_message(chat_id=545960544, text=text)
+    # await message.copy_to(message.chat.id)
+
+from aiogram.types import ChatType
+
+# @dp.message_handler(chat_type=[ChatType.PRIVATE, ChatType.SUPERGROUP])
+@dp.message_handler(chat_type=[ChatType.SUPERGROUP])
+async def send_welcome(message: types.Message):
+    """
+    This handler will be called when user sends message in private chat
+    """
+    await message.reply("Hi!\nI'm hearing your messages only in private chats")
+
 
 if __name__ == '__main__':
     executor.start_polling(dp, skip_updates=True)
