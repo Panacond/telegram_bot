@@ -64,7 +64,6 @@ async def message_handler(message: types.Message):
 def main() -> None:
     # Initialize Bot instance with an default parse mode which will be passed to all API calls
     bot = Bot(TOKEN, parse_mode="HTML")
-    # bot = Bot(TOKEN="1474991874:AAHr9frYUjJ95MJ3_mE5xuNDXvnvr3OvkFE")
     # And the run events dispatching
     dp.run_polling(bot)
 
